@@ -21,20 +21,26 @@ This platform replaces that workflow with a structured intake system:
 
 ## Architecture
 
-```
-┌─────────────────┐        HTTP/JSON         ┌──────────────────┐
-│  React (Vite)   │  ───────────────────▶    │  FastAPI backend │
-│  - Intake form  │                          │  - Validation    │
-│  - Dashboard    │  ◀───────────────────    │  - CRUD routes   │
-└─────────────────┘        REST API          │  - CORS          │
-                                             └────────┬─────────┘
-                                                      │ SQLAlchemy
-                                                      │ (psycopg v3)
-                                                      ▼
-                                             ┌──────────────────┐
-                                             │  Neon PostgreSQL │
-                                             │  (managed cloud) │
-                                             └──────────────────┘
+```mermaid
+flowchart LR
+    subgraph FE["Frontend — React + Vite"]
+        A[Intake form]
+        B[Reporting dashboard]
+    end
+
+    subgraph BE["Backend — FastAPI"]
+        C[Validation + CRUD]
+        D[CORS + /docs]
+    end
+
+    subgraph DB["Neon — Cloud Postgres"]
+        E[(products table)]
+    end
+
+    A -- "POST product" --> C
+    B -- "GET catalog" --> C
+    C -- "JSON response" --> B
+    C -- "SQLAlchemy / psycopg" --> E
 ```
 
 **Frontend:** React + Vite, axios for API calls. Two views — a product intake form and a reporting dashboard with client-side status filtering.
